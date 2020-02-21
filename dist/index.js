@@ -3579,12 +3579,12 @@ function run() {
                     return;
             }
             const paths = files.map(pathForFile);
-            core.debug('Files: ' + paths.join(', '));
-            const dirs = paths.map(directoryForPath).filter((value, index, self) => {
+            core.info('Files: ' + paths.join(', '));
+            const services = paths.map(directoryForPath).filter((value, index, self) => {
                 return value && self.indexOf(value) === index;
             });
-            core.debug('Directories: ' + dirs.join(', '));
-            core.setOutput('directories', dirs.join(','));
+            core.info('Services: ' + services.join(', '));
+            core.setOutput('services', services.join(','));
         }
         catch (error) {
             core.setFailed(error.message);
