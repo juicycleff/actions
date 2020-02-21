@@ -1,0 +1,9 @@
+name: Micro
+description: Extract the 
+author: Ben Toogood
+inputs:
+  githubToken:
+    description: Your GitHub token. Accessed via ${{ secrets.GITHUB_TOKEN }}
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
