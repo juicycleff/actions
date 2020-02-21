@@ -3,7 +3,7 @@ description: Extract the services which have changed
 author: Ben Toogood
 inputs:
   githubToken:
-    description: Your GitHub token. Accessed via ${{ secrets.GITHUB_TOKEN }}
+    description: Your GitHub token. Provided by GitHub automatically.
 runs:
   using: 'node12'
   main: 'dist/index.js'
