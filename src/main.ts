@@ -71,11 +71,7 @@ async function run(): Promise<void> {
     let files: File[]
     switch (eventName) {
       case 'push':
-        files = await getChangedPushFiles(
-          client,
-          payload.before,
-          payload.after
-        )
+        files = await getChangedPushFiles(client, payload.before, payload.after)
         break
 
       case 'pull_request':

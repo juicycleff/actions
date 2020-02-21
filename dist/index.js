@@ -3559,21 +3559,20 @@ function directoryForPath(path) {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const context = github.context;
             const token = core.getInput('githubToken');
-            const client = new context.GitHub(token);
-            const { pull_request } = context.payload;
+            const client = new github.GitHub(token);
+            const { payload, eventName } = github.context;
             let files;
-            switch (context.eventName) {
+            switch (eventName) {
                 case 'push':
-                    files = yield getChangedPushFiles(client, context.payload.before, context.payload.after);
+                    files = yield getChangedPushFiles(client, payload.before, payload.after);
                     break;
                 case 'pull_request':
-                    if (!pull_request) {
+                    if (!payload.pull_request) {
                         core.setFailed('Could not get pull request from context, exiting');
                         return;
                     }
-                    files = yield getChangedPRFiles(client, pull_request.number);
+                    files = yield getChangedPRFiles(client, payload.pull_request.number);
                     break;
                 default:
                     core.setFailed('Change not initiated by a PR or Push');
