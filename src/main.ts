@@ -45,6 +45,8 @@ async function getChangedPushFiles(
 }
 
 function pathForFile(f: File): string {
+  core.info(JSON.stringify(f))
+
   switch (f.status) {
     case 'added':
       return f.added || f.filename
@@ -58,6 +60,9 @@ function pathForFile(f: File): string {
 }
 
 function directoryForPath(path: string): string | null {
+  // exclude . files, not servces
+  if (path.startsWith('.')) return null
+
   const comps = path.split('/')
   return comps.length > 1 ? comps[0] : null
 }
@@ -89,7 +94,6 @@ async function run(): Promise<void> {
 
     const paths = files.map(pathForFile)
     core.info('Files: ' + paths.join(', '))
-    console.log('Files: ' + paths.join(', '))
 
     const services = paths
       .map(directoryForPath)
@@ -98,7 +102,6 @@ async function run(): Promise<void> {
       })
 
     core.info('Services: ' + services.join(', '))
-    console.log('Services: ' + services.join(', '))
 
     core.setOutput('services', services.join(','))
   } catch (error) {

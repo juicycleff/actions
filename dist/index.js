@@ -3541,6 +3541,7 @@ function getChangedPushFiles(client, base, head) {
     });
 }
 function pathForFile(f) {
+    core.info(JSON.stringify(f));
     switch (f.status) {
         case 'added':
             return f.added || f.filename;
@@ -3553,6 +3554,9 @@ function pathForFile(f) {
     }
 }
 function directoryForPath(path) {
+    // exclude . files, not servces
+    if (path.startsWith('.'))
+        return null;
     const comps = path.split('/');
     return comps.length > 1 ? comps[0] : null;
 }
@@ -3580,14 +3584,12 @@ function run() {
             }
             const paths = files.map(pathForFile);
             core.info('Files: ' + paths.join(', '));
-            console.log('Files: ' + paths.join(', '));
             const services = paths
                 .map(directoryForPath)
                 .filter((value, index, self) => {
                 return value && self.indexOf(value) === index;
             });
             core.info('Services: ' + services.join(', '));
-            console.log('Services: ' + services.join(', '));
             core.setOutput('services', services.join(','));
         }
         catch (error) {
