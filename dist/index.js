@@ -3577,7 +3577,7 @@ function run() {
                 return value && self.indexOf(value) === index;
             });
             core.info('Services: ' + services.join(', '));
-            core.setOutput('services', services.join(','));
+            core.setOutput('services', services.join(' '));
         }
         catch (error) {
             core.setFailed(error.message);

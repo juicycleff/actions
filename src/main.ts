@@ -88,7 +88,7 @@ async function run(): Promise<void> {
 
     core.info('Services: ' + services.join(', '))
 
-    core.setOutput('services', services.join(','))
+    core.setOutput('services', services.join(' '))
   } catch (error) {
     core.setFailed(error.message)
   }
