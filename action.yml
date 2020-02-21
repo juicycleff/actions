@@ -1,5 +1,5 @@
 name: Micro
-description: Extract the 
+description: Extract the services which have changed
 author: Ben Toogood
 inputs:
   githubToken:
