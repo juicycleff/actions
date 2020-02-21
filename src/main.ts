@@ -89,6 +89,7 @@ async function run(): Promise<void> {
 
     const paths = files.map(pathForFile)
     core.info('Files: ' + paths.join(', '))
+    console.log('Files: ' + paths.join(', '))
 
     const services = paths
       .map(directoryForPath)
@@ -97,6 +98,8 @@ async function run(): Promise<void> {
       })
 
     core.info('Services: ' + services.join(', '))
+    console.log('Services: ' + services.join(', '))
+
     core.setOutput('services', services.join(','))
   } catch (error) {
     core.setFailed(error.message)

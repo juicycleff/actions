@@ -3580,10 +3580,14 @@ function run() {
             }
             const paths = files.map(pathForFile);
             core.info('Files: ' + paths.join(', '));
-            const services = paths.map(directoryForPath).filter((value, index, self) => {
+            console.log('Files: ' + paths.join(', '));
+            const services = paths
+                .map(directoryForPath)
+                .filter((value, index, self) => {
                 return value && self.indexOf(value) === index;
             });
             core.info('Services: ' + services.join(', '));
+            console.log('Services: ' + services.join(', '));
             core.setOutput('services', services.join(','));
         }
         catch (error) {
