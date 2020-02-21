@@ -3540,19 +3540,6 @@ function getChangedPushFiles(client, base, head) {
         }));
     });
 }
-function pathForFile(f) {
-    core.info(JSON.stringify(f));
-    switch (f.status) {
-        case 'added':
-            return f.added || f.filename;
-        case 'modified':
-            return f.modified || f.filename;
-        case 'removed':
-            return f.removed || f.filename;
-        default:
-            return f.filename;
-    }
-}
 function directoryForPath(path) {
     // exclude . files, not servces
     if (path.startsWith('.'))
@@ -3582,7 +3569,7 @@ function run() {
                     core.setFailed('Change not initiated by a PR or Push');
                     return;
             }
-            const paths = files.map(pathForFile);
+            const paths = files.map(p => p.filename);
             core.info('Files: ' + paths.join(', '));
             const services = paths
                 .map(directoryForPath)
