@@ -64,27 +64,26 @@ function directoryForPath(path: string): string | null {
 
 async function run(): Promise<void> {
   try {
-    const context: any = github.context
     const token: string = core.getInput('githubToken')
-    const client = new context.GitHub(token)
-    const {pull_request} = context.payload
+    const client = new github.GitHub(token)
+    const {payload, eventName} = github.context
 
     let files: File[]
-    switch (context.eventName) {
+    switch (eventName) {
       case 'push':
         files = await getChangedPushFiles(
           client,
-          context.payload.before,
-          context.payload.after
+          payload.before,
+          payload.after
         )
         break
 
       case 'pull_request':
-        if (!pull_request) {
+        if (!payload.pull_request) {
           core.setFailed('Could not get pull request from context, exiting')
           return
         }
-        files = await getChangedPRFiles(client, pull_request.number)
+        files = await getChangedPRFiles(client, payload.pull_request.number)
         break
 
       default:
