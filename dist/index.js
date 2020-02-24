@@ -3501,17 +3501,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = __importStar(__webpack_require__(747));
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 class File {
     constructor() {
-        this.added = '';
-        this.modified = '';
-        this.removed = '';
         this.filename = '';
-        this.status = '';
-        this.previous_filename = '';
-        this.distinct = true;
     }
 }
 function getChangedPRFiles(client, prNumber) {
@@ -3578,6 +3573,10 @@ function run() {
             });
             core.info('Services: ' + services.join(', '));
             core.setOutput('services', services.join(' '));
+            // services.json will contain a JSON array of
+            // the names of the services which were changed
+            // in the last push.
+            fs.writeFileSync(`${process.env.HOME}/services.json`, JSON.stringify(services), 'utf-8');
         }
         catch (error) {
             core.setFailed(error.message);

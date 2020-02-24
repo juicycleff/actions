@@ -1,14 +1,9 @@
+import * as fs from 'fs'
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 
 class File {
-  added: string = ''
-  modified: string = ''
-  removed: string = ''
   filename: string = ''
-  status: string = ''
-  previous_filename: string = ''
-  distinct: boolean = true
 }
 
 async function getChangedPRFiles(
@@ -87,8 +82,16 @@ async function run(): Promise<void> {
       })
 
     core.info('Services: ' + services.join(', '))
-
     core.setOutput('services', services.join(' '))
+
+    // services.json will contain a JSON array of
+    // the names of the services which were changed
+    // in the last push.
+    fs.writeFileSync(
+      `${process.env.HOME}/services.json`,
+      JSON.stringify(services),
+      'utf-8'
+    )
   } catch (error) {
     core.setFailed(error.message)
   }
