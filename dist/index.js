@@ -5614,10 +5614,12 @@ function run() {
                 .filter((c) => c.distinct)
                 .map((c) => c.id);
             const files = yield getFilesChanged(gh, commitIDs);
-            core.debug("Files: " + JSON.stringify(files));
+            core.debug('Files: ' + JSON.stringify(files));
+            console.log('Files: ' + JSON.stringify(files));
             // Get the services which exist in source (the directory paths)
             const services = yield listServiceDirectories();
-            core.debug("Services: " + JSON.stringify(services));
+            core.debug('Services: ' + JSON.stringify(services));
+            console.log('Services: ' + JSON.stringify(services));
             // Group the files by service directory
             const filesByService = files.reduce((map, file) => {
                 const srv = services.find(s => file.filename.startsWith(s));
@@ -5625,7 +5627,8 @@ function run() {
                     return map;
                 return Object.assign(Object.assign({}, map), { [srv]: map[srv] ? [...map[srv], file] : [file] });
             }, {});
-            core.debug("filesByService: " + JSON.stringify(filesByService));
+            core.debug('filesByService: ' + JSON.stringify(filesByService));
+            console.log('filesByService: ' + JSON.stringify(filesByService));
             // Determine the status of the service, if the designated ServiceIdentifier has
             // been modified, this is the primary way to know if a service has been created or deleted
             const statuses = Object.keys(filesByService).reduce((map, srv) => {
@@ -5633,7 +5636,8 @@ function run() {
                 const status = mainFile ? mainFile.status : Status_Modified;
                 return Object.assign(Object.assign({}, map), { [status]: [...map[status], srv] });
             }, { [Status_Added]: [], [Status_Modified]: [], [Status_Deleted]: [] });
-            core.debug("statuses: " + JSON.stringify(statuses));
+            core.debug('statuses: ' + JSON.stringify(statuses));
+            console.log('statuses: ' + JSON.stringify(statuses));
             // Write the files to changes.json
             const data = JSON.stringify({ services: statuses, commit_ids: commitIDs });
             fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8');

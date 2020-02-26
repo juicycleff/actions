@@ -89,10 +89,12 @@ async function run(): Promise<void> {
       .map((c: any) => c.id)
     const files: File[] = await getFilesChanged(gh, commitIDs)
     core.debug('Files: ' + JSON.stringify(files))
+    console.log('Files: ' + JSON.stringify(files))
 
     // Get the services which exist in source (the directory paths)
     const services = await listServiceDirectories()
     core.debug('Services: ' + JSON.stringify(services))
+    console.log('Services: ' + JSON.stringify(services))
 
     // Group the files by service directory
     const filesByService: Record<string, File[]> = files.reduce(
@@ -106,6 +108,7 @@ async function run(): Promise<void> {
       {}
     )
     core.debug('filesByService: ' + JSON.stringify(filesByService))
+    console.log('filesByService: ' + JSON.stringify(filesByService))
 
     // Determine the status of the service, if the designated ServiceIdentifier has
     // been modified, this is the primary way to know if a service has been created or deleted
@@ -120,6 +123,7 @@ async function run(): Promise<void> {
       {[Status_Added]: [], [Status_Modified]: [], [Status_Deleted]: []}
     )
     core.debug('statuses: ' + JSON.stringify(statuses))
+    console.log('statuses: ' + JSON.stringify(statuses))
 
     // Write the files to changes.json
     const data = JSON.stringify({services: statuses, commit_ids: commitIDs})
