@@ -7,16 +7,18 @@ let glob = require('glob')
 // for it to be classified as a service
 const ServiceIdentifier = 'main.go'
 
+// The statuses a file / service can have
+// interface Status String {}
+// const Status_Added: Status = 'added';
+// const Status_Modified: Status = 'modified'
+// const Status_Deleted: Status = 'deleted'
+// const Status_Unknown: Status = 'unknown'
+
 // File is the object type returned by the GitHub API
 class File {
   filename: string = '' // e.g. foobar/main.go
-  status: string = '' // e.g. added, modified, deleted
+  status: 'added' | 'modified' | 'deleted' | 'unknown' = 'unknown' // e.g. added, modified, deleted
 }
-
-// The statuses a file / service can have
-const Status_Added = 'added'
-const Status_Modified = 'modified'
-const Status_Deleted = 'deleted'
 
 // listServiceDirectories returns an array of all the directories which include
 // the designated ServiceIdentifier file. Some services are nested within other
@@ -110,20 +112,20 @@ async function run(): Promise<void> {
       },
       {}
     )
-    console.log('filesByService: ' + JSON.stringify(filesByService))
 
     // Determine the status of the service, if the designated ServiceIdentifier has
     // been modified, this is the primary way to know if a service has been created or deleted
-    const statuses = Object.keys(filesByService).reduce(
-      (map: Record<string, string[]>, srv: string) => {
-        const mainFile = filesByService[srv].find(f =>
-          f.filename.endsWith(ServiceIdentifier)
-        )
-        const status = mainFile ? mainFile.status : Status_Modified
-        return {...map, [status]: [...map[status], srv]}
-      },
-      {[Status_Added]: [], [Status_Modified]: [], [Status_Deleted]: []}
-    )
+    let statuses: Record<string, string[]> = {
+      added: [],
+      modified: [],
+      deleted: []
+    }
+    Object.keys(filesByService).forEach(srv => {
+      const files = filesByService[srv]
+      const mainFile = files.find(f => f.filename.endsWith(ServiceIdentifier))
+      const status = mainFile ? mainFile.status : 'modified'
+      statuses[status].push(srv)
+    })
     console.log('statuses: ' + JSON.stringify(statuses))
 
     // Write the files to changes.json
@@ -131,9 +133,9 @@ async function run(): Promise<void> {
     fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8')
 
     // Output to GitHub action
-    core.setOutput('services_added', statuses[Status_Added].join(' '))
-    core.setOutput('services_modified', statuses[Status_Modified].join(' '))
-    core.setOutput('services_deleted', statuses[Status_Deleted].join(' '))
+    core.setOutput('services_added', statuses['added'].join(' '))
+    core.setOutput('services_modified', statuses['modified'].join(' '))
+    core.setOutput('services_deleted', statuses['deleted'].join(' '))
   } catch (error) {
     core.setFailed(error.message)
   }
@@ -142,12 +144,12 @@ async function run(): Promise<void> {
 run()
 
 const testFiles = [
-  {filename: 'services/location/examples/web/demo.go', status: Status_Modified},
+  {filename: 'services/location/examples/web/demo.go', status: 'modified'},
   {
     filename: 'services/location/examples/web/demotwo.go',
-    status: Status_Modified
+    status: 'modified'
   },
-  {filename: 'services/platform-test/main.go', status: Status_Deleted},
-  {filename: 'services/location/demo.go', status: Status_Modified},
-  {filename: 'services/events/main.go', status: Status_Added}
+  {filename: 'services/platform-test/main.go', status: 'deleted'},
+  {filename: 'services/location/demo.go', status: 'modified'},
+  {filename: 'services/events/main.go', status: 'added'}
 ]

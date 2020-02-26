@@ -5545,17 +5545,19 @@ let glob = __webpack_require__(120);
 // ServiceIdentifier is the file which is required in a directory in order
 // for it to be classified as a service
 const ServiceIdentifier = 'main.go';
+// The statuses a file / service can have
+// interface Status String {}
+// const Status_Added: Status = 'added';
+// const Status_Modified: Status = 'modified'
+// const Status_Deleted: Status = 'deleted'
+// const Status_Unknown: Status = 'unknown'
 // File is the object type returned by the GitHub API
 class File {
     constructor() {
         this.filename = ''; // e.g. foobar/main.go
-        this.status = ''; // e.g. added, modified, deleted
+        this.status = 'unknown'; // e.g. added, modified, deleted
     }
 }
-// The statuses a file / service can have
-const Status_Added = 'added';
-const Status_Modified = 'modified';
-const Status_Deleted = 'deleted';
 // listServiceDirectories returns an array of all the directories which include
 // the designated ServiceIdentifier file. Some services are nested within other
 // directories, these will be at the start of the array.
@@ -5572,7 +5574,9 @@ function listServiceDirectories() {
                 }
                 // get the directories from the files
                 let dirs = files.map(path => {
-                    const comps = path.substr(process.cwd().length + 1, path.length).split('/');
+                    const comps = path
+                        .substr(process.cwd().length + 1, path.length)
+                        .split('/');
                     return comps.slice(0, comps.length - 1).join('/');
                 });
                 // sort the directories by length so the subdirectories
@@ -5629,22 +5633,23 @@ function run() {
                     return map;
                 return Object.assign(Object.assign({}, map), { [srv]: map[srv] ? [...map[srv], file] : [file] });
             }, {});
-            console.log('filesByService: ' + JSON.stringify(filesByService));
             // Determine the status of the service, if the designated ServiceIdentifier has
             // been modified, this is the primary way to know if a service has been created or deleted
-            const statuses = Object.keys(filesByService).reduce((map, srv) => {
-                const mainFile = filesByService[srv].find(f => f.filename.endsWith(ServiceIdentifier));
-                const status = mainFile ? mainFile.status : Status_Modified;
-                return Object.assign(Object.assign({}, map), { [status]: [...map[status], srv] });
-            }, { [Status_Added]: [], [Status_Modified]: [], [Status_Deleted]: [] });
+            let statuses = { 'added': [], 'modified': [], 'deleted': [] };
+            Object.keys(filesByService).forEach(srv => {
+                const files = filesByService[srv];
+                const mainFile = files.find(f => f.filename.endsWith(ServiceIdentifier));
+                const status = mainFile ? mainFile.status : 'modified';
+                statuses[status].push(srv);
+            });
             console.log('statuses: ' + JSON.stringify(statuses));
             // Write the files to changes.json
             const data = JSON.stringify({ services: statuses, commit_ids: commitIDs });
             fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8');
             // Output to GitHub action
-            core.setOutput('services_added', statuses[Status_Added].join(' '));
-            core.setOutput('services_modified', statuses[Status_Modified].join(' '));
-            core.setOutput('services_deleted', statuses[Status_Deleted].join(' '));
+            core.setOutput('services_added', statuses['added'].join(' '));
+            core.setOutput('services_modified', statuses['modified'].join(' '));
+            core.setOutput('services_deleted', statuses['deleted'].join(' '));
         }
         catch (error) {
             core.setFailed(error.message);
@@ -5653,14 +5658,14 @@ function run() {
 }
 run();
 const testFiles = [
-    { filename: 'services/location/examples/web/demo.go', status: Status_Modified },
+    { filename: 'services/location/examples/web/demo.go', status: 'modified' },
     {
         filename: 'services/location/examples/web/demotwo.go',
-        status: Status_Modified
+        status: 'modified'
     },
-    { filename: 'services/platform-test/main.go', status: Status_Deleted },
-    { filename: 'services/location/demo.go', status: Status_Modified },
-    { filename: 'services/events/main.go', status: Status_Added }
+    { filename: 'services/platform-test/main.go', status: 'deleted' },
+    { filename: 'services/location/demo.go', status: 'modified' },
+    { filename: 'services/events/main.go', status: 'added' }
 ];
 
 
