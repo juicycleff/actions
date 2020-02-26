@@ -6,9 +6,8 @@ works for both single commits and pull requests.
 The GitHub action requires one input: githubToken, this is provided by default by
 GitHub actions, and can be accessed via: `${{ secrets.GITHUB_TOKEN }}`.
 
-The single output provided is named `services`. It is an list of services which have
-been changed, encoded in a string with ` ` as the seperator. It can be used as an array
-in bash as demonstrated below.
+The outputs provided are lists of services which have been changed, encoded in a string
+with ` ` as the seperator. It can be used as an array in bash as demonstrated below.
 
 ## How to Use
 ```
@@ -21,18 +20,35 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
       - name: Detect which services changed
         id: services_changed
-        uses: micro/actions@1.0.0
+        uses: micro/actions@1.0.19
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: test
         run: |
-          cat $HOME/services.json
+          cat $HOME/changes.json
           echo '${{ steps.services_changed.outputs.services }}'
 
-          services=(${{ steps.services_changed.outputs.services }})
+          echo Logging services added
+          services=(${{ steps.services_changed.outputs.services_added }})
           for dir in "${services[@]}"; do
-            echo $dir
-          end
+            echo Added $dir
+          done
+
+          echo Logging services modified
+          services=(${{ steps.services_changed.outputs.services_modified }})
+          for dir in "${services[@]}"; do
+            echo Modified $dir
+          done
+
+          echo Logging services deleted
+          services=(${{ steps.services_changed.outputs.services_deleted }})
+          for dir in "${services[@]}"; do
+            echo Deleted $dir
+          done
+
+          echo Done
 ```
