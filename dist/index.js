@@ -5563,8 +5563,6 @@ function listServiceDirectories() {
     return __awaiter(this, void 0, void 0, function* () {
         let query = `${process.env.HOME}/**/${ServiceIdentifier}`;
         console.log(query);
-        query = `**/${ServiceIdentifier}`;
-        console.log(query);
         return new Promise((resolve, reject) => {
             glob(query, {}, (error, files) => {
                 if (error) {
@@ -5618,7 +5616,8 @@ function run() {
                 .filter((c) => c.distinct)
                 .map((c) => c.id);
             const files = yield getFilesChanged(gh, commitIDs);
-            console.log('Files: ' + JSON.stringify(files.map(f => ({ name: f.filename, status: f.status }))));
+            console.log('Files: ' +
+                JSON.stringify(files.map(f => ({ name: f.filename, status: f.status }))));
             // Get the services which exist in source (the directory paths)
             const services = yield listServiceDirectories();
             console.log('Services: ' + JSON.stringify(services));
