@@ -81,7 +81,7 @@ async function run(): Promise<void> {
     // const files = testFiles;
 
     // Initialize a github client using the token provided by the action
-    const gh = new GitHub(core.getInput('token'))
+    const gh = new GitHub(core.getInput('githubToken'))
 
     // Extract the commits from the action context
     const {commits} = context.payload
@@ -133,7 +133,7 @@ async function run(): Promise<void> {
     core.setOutput('services_modified', statuses[Status_Modified].join(' '))
     core.setOutput('services_deleted', statuses[Status_Deleted].join(' '))
   } catch (error) {
-    core.error(error.message)
+    core.setFailed(error.message)
   }
 }
 
