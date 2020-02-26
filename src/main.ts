@@ -24,7 +24,7 @@ const Status_Deleted = 'deleted'
 async function listServiceDirectories(): Promise<string[]> {
   return new Promise((resolve, reject) => {
     glob(
-      `services/**/${ServiceIdentifier}`,
+      `${process.env.HOME}/**/${ServiceIdentifier}`,
       {},
       (error: Error, files: string[]) => {
         if (error) {
