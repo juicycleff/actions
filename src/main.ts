@@ -81,7 +81,9 @@ async function run(): Promise<void> {
     // const files = testFiles;
 
     // Initialize a github client using the token provided by the action
-    const gh = new GitHub(core.getInput('githubToken'))
+    const token = core.getInput('githubToken');
+    if(token === '') return core.setFailed("Missing token");
+    const gh = new GitHub(token)
 
     // Extract the commits from the action context
     const {commits} = context.payload
