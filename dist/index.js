@@ -5598,7 +5598,7 @@ function getFilesChanged(gh, commitIDs) {
                     return gh.repos.getCommit(Object.assign(Object.assign({}, args), { ref }));
                 })));
                 resolve(responses.reduce((group, res) => {
-                    const files = res.data.files.filter((f) => f.status !== "renamed");
+                    const files = res.data.files.filter((f) => f.status !== 'renamed');
                     return [...group, ...files];
                 }, []));
             }
@@ -5656,12 +5656,16 @@ function run() {
                 const files = filesByService[srv];
                 const mainFile = files.find(f => f.filename.endsWith(ServiceIdentifier));
                 const status = mainFile ? mainFile.status : 'modified';
-                console.log(srv + " has status " + status);
+                console.log(srv + ' has status ' + status);
                 statuses[status].push(srv);
             });
             console.log('statuses: ' + JSON.stringify(statuses));
             // Write the files to changes.json
-            const data = JSON.stringify({ services: statuses, commit_ids: commitIDs });
+            const data = JSON.stringify({
+                services: statuses,
+                commit_ids: commitIDs,
+                payload: github_1.context.payload,
+            });
             fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8');
             // Output to GitHub action
             core.setOutput('services_added', statuses['added'].join(' '));

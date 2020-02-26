@@ -145,7 +145,11 @@ async function run(): Promise<void> {
     console.log('statuses: ' + JSON.stringify(statuses))
 
     // Write the files to changes.json
-    const data = JSON.stringify({services: statuses, commit_ids: commitIDs})
+    const data = JSON.stringify({
+      services: statuses,
+      commit_ids: commitIDs,
+      payload: context.payload
+    })
     fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8')
 
     // Output to GitHub action
