@@ -5563,6 +5563,8 @@ function listServiceDirectories() {
     return __awaiter(this, void 0, void 0, function* () {
         let query = `${process.env.HOME}/**/${ServiceIdentifier}`;
         console.log(query);
+        console.log(process.cwd());
+        console.log(process.env.PWD);
         return new Promise((resolve, reject) => {
             glob(query, {}, (error, files) => {
                 if (error) {
