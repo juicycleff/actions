@@ -35,7 +35,9 @@ async function listServiceDirectories(): Promise<string[]> {
 
       // get the directories from the files
       let dirs: string[] = files.map(path => {
-        const comps = path.substr(process.cwd().length + 1, path.length).split('/')
+        const comps = path
+          .substr(process.cwd().length + 1, path.length)
+          .split('/')
         return comps.slice(0, comps.length - 1).join('/')
       })
 

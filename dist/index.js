@@ -5564,7 +5564,6 @@ function listServiceDirectories() {
         let query = `${process.env.HOME}/**/${ServiceIdentifier}`;
         console.log(query);
         console.log(process.cwd());
-        console.log(process.env.PWD);
         return new Promise((resolve, reject) => {
             glob(query, {}, (error, files) => {
                 if (error) {
@@ -5572,8 +5571,8 @@ function listServiceDirectories() {
                     return;
                 }
                 // get the directories from the files
-                const dirs = files.map(path => {
-                    const comps = path.split('/');
+                let dirs = files.map(path => {
+                    const comps = path.substr(process.cwd().length + 1, path.length).split('/');
                     return comps.slice(0, comps.length - 1).join('/');
                 });
                 // sort the directories by length so the subdirectories
