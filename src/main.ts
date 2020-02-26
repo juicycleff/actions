@@ -17,7 +17,7 @@ const ServiceIdentifier = 'main.go'
 // File is the object type returned by the GitHub API
 class File {
   filename: string = '' // e.g. foobar/main.go
-  status: 'added' | 'modified' | 'deleted' | 'unknown' = 'unknown' // e.g. added, modified, deleted
+  status: 'added' | 'modified' | 'deleted' | 'renamed' | 'unknown' = 'unknown' // e.g. added, modified, deleted
 }
 
 // listServiceDirectories returns an array of all the directories which include
@@ -68,7 +68,12 @@ async function getFilesChanged(
       )
 
       resolve(
-        responses.reduce((group, res) => [...group, ...res.data.files], [])
+        responses.reduce((group, res) => {
+          const files = res.data.files.filter(
+            (f: File) => f.status !== 'renamed'
+          )
+          return [...group, ...files]
+        }, [])
       )
     } catch (error) {
       reject(error)
@@ -134,6 +139,7 @@ async function run(): Promise<void> {
       const files = filesByService[srv]
       const mainFile = files.find(f => f.filename.endsWith(ServiceIdentifier))
       const status = mainFile ? mainFile.status : 'modified'
+      console.log(srv + ' has status ' + status)
       statuses[status].push(srv)
     })
     console.log('statuses: ' + JSON.stringify(statuses))

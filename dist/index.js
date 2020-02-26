@@ -5597,7 +5597,10 @@ function getFilesChanged(gh, commitIDs) {
                 const responses = yield Promise.all(commitIDs.map((ref) => __awaiter(this, void 0, void 0, function* () {
                     return gh.repos.getCommit(Object.assign(Object.assign({}, args), { ref }));
                 })));
-                resolve(responses.reduce((group, res) => [...group, ...res.data.files], []));
+                resolve(responses.reduce((group, res) => {
+                    const files = res.data.files.filter((f) => f.status !== "renamed");
+                    return [...group, ...files];
+                }, []));
             }
             catch (error) {
                 reject(error);
@@ -5628,7 +5631,9 @@ function run() {
             console.log('Services: ' + JSON.stringify(services));
             // Get the directories of any services which have been deleted (since
             // they will no longer show up in the filesystem)
-            files.filter(f => f.filename.endsWith(ServiceIdentifier)).forEach(f => {
+            files
+                .filter(f => f.filename.endsWith(ServiceIdentifier))
+                .forEach(f => {
                 const comps = f.filename.split('/');
                 services.push(comps.slice(0, comps.length - 1).join('/'));
             });
@@ -5651,6 +5656,7 @@ function run() {
                 const files = filesByService[srv];
                 const mainFile = files.find(f => f.filename.endsWith(ServiceIdentifier));
                 const status = mainFile ? mainFile.status : 'modified';
+                console.log(srv + " has status " + status);
                 statuses[status].push(srv);
             });
             console.log('statuses: ' + JSON.stringify(statuses));
