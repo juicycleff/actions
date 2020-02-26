@@ -5562,7 +5562,7 @@ const Status_Deleted = 'deleted';
 function listServiceDirectories() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
-            glob(`services/**/${ServiceIdentifier}`, {}, (error, files) => {
+            glob(`${process.env.HOME}/**/${ServiceIdentifier}`, {}, (error, files) => {
                 if (error) {
                     reject(error);
                     return;
@@ -5607,10 +5607,12 @@ function run() {
             // const commitIDs = ['foo', 'bar'];
             // const files = testFiles;
             // Initialize a github client using the token provided by the action
-            const gh = new github_1.GitHub(core.getInput('token'));
+            const token = core.getInput('githubToken');
+            if (token === '')
+                return core.setFailed("Missing token");
+            const gh = new github_1.GitHub(token);
             // Extract the commits from the action context
-            const { commits } = github_1.context.payload;
-            const commitIDs = commits
+            const commitIDs = github_1.context.payload.commits
                 .filter((c) => c.distinct)
                 .map((c) => c.id);
             const files = yield getFilesChanged(gh, commitIDs);
@@ -5641,7 +5643,7 @@ function run() {
             core.setOutput('services_deleted', statuses[Status_Deleted].join(' '));
         }
         catch (error) {
-            core.error(error.message);
+            core.setFailed(error.message);
         }
     });
 }

@@ -81,13 +81,12 @@ async function run(): Promise<void> {
     // const files = testFiles;
 
     // Initialize a github client using the token provided by the action
-    const token = core.getInput('githubToken');
-    if(token === '') return core.setFailed("Missing token");
+    const token = core.getInput('githubToken')
+    if (token === '') return core.setFailed('Missing token')
     const gh = new GitHub(token)
 
     // Extract the commits from the action context
-    const {commits} = context.payload
-    const commitIDs = commits
+    const commitIDs = context.payload.commits
       .filter((c: any) => c.distinct)
       .map((c: any) => c.id)
     const files: File[] = await getFilesChanged(gh, commitIDs)
