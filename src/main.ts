@@ -25,7 +25,6 @@ async function listServiceDirectories(): Promise<string[]> {
   let query = `${process.env.HOME}/**/${ServiceIdentifier}`
   console.log(query)
   console.log(process.cwd())
-  console.log(process.env.PWD)
 
   return new Promise((resolve, reject) => {
     glob(query, {}, (error: Error, files: string[]) => {
@@ -35,8 +34,8 @@ async function listServiceDirectories(): Promise<string[]> {
       }
 
       // get the directories from the files
-      const dirs: string[] = files.map(path => {
-        const comps = path.split('/')
+      let dirs: string[] = files.map(path => {
+        const comps = path.substr(process.cwd().length + 1, path.length).split('/')
         return comps.slice(0, comps.length - 1).join('/')
       })
 
