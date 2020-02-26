@@ -98,8 +98,18 @@ async function run(): Promise<void> {
     )
 
     // Get the services which exist in source (the directory paths)
-    const services = await listServiceDirectories()
+    let services = await listServiceDirectories()
     console.log('Services: ' + JSON.stringify(services))
+
+    // Get the directories of any services which have been deleted (since
+    // they will no longer show up in the filesystem)
+    files
+      .filter(f => f.filename.endsWith(ServiceIdentifier))
+      .forEach(f => {
+        const comps = f.filename.split('/')
+        services.push(comps.slice(0, comps.length - 1).join('/'))
+      })
+    console.log('Services incl deleted: ' + JSON.stringify(services))
 
     // Group the files by service directory
     const filesByService: Record<string, File[]> = files.reduce(

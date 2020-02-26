@@ -5624,8 +5624,15 @@ function run() {
             console.log('Files: ' +
                 JSON.stringify(files.map(f => ({ name: f.filename, status: f.status }))));
             // Get the services which exist in source (the directory paths)
-            const services = yield listServiceDirectories();
+            let services = yield listServiceDirectories();
             console.log('Services: ' + JSON.stringify(services));
+            // Get the directories of any services which have been deleted (since
+            // they will no longer show up in the filesystem)
+            files.filter(f => f.filename.endsWith(ServiceIdentifier)).forEach(f => {
+                const comps = f.filename.split('/');
+                services.push(comps.slice(0, comps.length - 1).join('/'));
+            });
+            console.log('Services incl deleted: ' + JSON.stringify(services));
             // Group the files by service directory
             const filesByService = files.reduce((map, file) => {
                 const srv = services.find(s => file.filename.startsWith(s));
@@ -5635,7 +5642,11 @@ function run() {
             }, {});
             // Determine the status of the service, if the designated ServiceIdentifier has
             // been modified, this is the primary way to know if a service has been created or deleted
-            let statuses = { 'added': [], 'modified': [], 'deleted': [] };
+            let statuses = {
+                added: [],
+                modified: [],
+                deleted: []
+            };
             Object.keys(filesByService).forEach(srv => {
                 const files = filesByService[srv];
                 const mainFile = files.find(f => f.filename.endsWith(ServiceIdentifier));
