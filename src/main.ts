@@ -89,7 +89,10 @@ async function run(): Promise<void> {
       .filter((c: any) => c.distinct)
       .map((c: any) => c.id)
     const files: File[] = await getFilesChanged(gh, commitIDs)
-    console.log('Files: ' + JSON.stringify(files))
+    console.log(
+      'Files: ' +
+        JSON.stringify(files.map(f => ({name: f.filename, status: f.status})))
+    )
 
     // Get the services which exist in source (the directory paths)
     const services = await listServiceDirectories()
