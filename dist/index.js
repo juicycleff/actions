@@ -5583,11 +5583,8 @@ function listServiceDirectories() {
 // all commits, leveraging the filesFromCommit function.
 function getFilesChanged(gh, commitIDs) {
     return __awaiter(this, void 0, void 0, function* () {
-        const repo = github_1.context.payload.repository;
-        console.log(JSON.stringify(github_1.context.payload));
-        const org = repo.organization;
-        const owner = org || repo.owner;
-        const args = { owner: owner.name, repo: repo.name };
+        const { organization, name } = github_1.context.payload.repository;
+        const args = { owner: organization, repo: name };
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responses = yield Promise.all(commitIDs.map((ref) => __awaiter(this, void 0, void 0, function* () {

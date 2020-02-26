@@ -52,12 +52,8 @@ async function getFilesChanged(
   gh: GitHub,
   commitIDs: string[]
 ): Promise<File[]> {
-  const repo = context.payload.repository
-  console.log(JSON.stringify(context.payload))
-
-  const org = repo!.organization
-  const owner = org || repo!.owner
-  const args = {owner: owner.name, repo: repo!.name}
+  const {organization, name} = context.payload.repository!
+  const args = {owner: organization, repo: name}
 
   return new Promise(async (resolve, reject) => {
     try {
