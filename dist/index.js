@@ -5561,8 +5561,12 @@ const Status_Deleted = 'deleted';
 // directories, these will be at the start of the array.
 function listServiceDirectories() {
     return __awaiter(this, void 0, void 0, function* () {
+        let query = `${process.env.HOME}/**/${ServiceIdentifier}`;
+        console.log(query);
+        query = `**/${ServiceIdentifier}`;
+        console.log(query);
         return new Promise((resolve, reject) => {
-            glob(`${process.env.HOME}/**/${ServiceIdentifier}`, {}, (error, files) => {
+            glob(query, {}, (error, files) => {
                 if (error) {
                     reject(error);
                     return;
@@ -5614,11 +5618,9 @@ function run() {
                 .filter((c) => c.distinct)
                 .map((c) => c.id);
             const files = yield getFilesChanged(gh, commitIDs);
-            core.debug('Files: ' + JSON.stringify(files));
             console.log('Files: ' + JSON.stringify(files));
             // Get the services which exist in source (the directory paths)
             const services = yield listServiceDirectories();
-            core.debug('Services: ' + JSON.stringify(services));
             console.log('Services: ' + JSON.stringify(services));
             // Group the files by service directory
             const filesByService = files.reduce((map, file) => {
@@ -5627,7 +5629,6 @@ function run() {
                     return map;
                 return Object.assign(Object.assign({}, map), { [srv]: map[srv] ? [...map[srv], file] : [file] });
             }, {});
-            core.debug('filesByService: ' + JSON.stringify(filesByService));
             console.log('filesByService: ' + JSON.stringify(filesByService));
             // Determine the status of the service, if the designated ServiceIdentifier has
             // been modified, this is the primary way to know if a service has been created or deleted
@@ -5636,7 +5637,6 @@ function run() {
                 const status = mainFile ? mainFile.status : Status_Modified;
                 return Object.assign(Object.assign({}, map), { [status]: [...map[status], srv] });
             }, { [Status_Added]: [], [Status_Modified]: [], [Status_Deleted]: [] });
-            core.debug('statuses: ' + JSON.stringify(statuses));
             console.log('statuses: ' + JSON.stringify(statuses));
             // Write the files to changes.json
             const data = JSON.stringify({ services: statuses, commit_ids: commitIDs });

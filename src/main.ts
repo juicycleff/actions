@@ -22,27 +22,28 @@ const Status_Deleted = 'deleted'
 // the designated ServiceIdentifier file. Some services are nested within other
 // directories, these will be at the start of the array.
 async function listServiceDirectories(): Promise<string[]> {
+  let query = `${process.env.HOME}/**/${ServiceIdentifier}`
+  console.log(query)
+  query = `**/${ServiceIdentifier}`
+  console.log(query)
+
   return new Promise((resolve, reject) => {
-    glob(
-      `${process.env.HOME}/**/${ServiceIdentifier}`,
-      {},
-      (error: Error, files: string[]) => {
-        if (error) {
-          reject(error)
-          return
-        }
-
-        // get the directories from the files
-        const dirs: string[] = files.map(path => {
-          const comps = path.split('/')
-          return comps.slice(0, comps.length - 1).join('/')
-        })
-
-        // sort the directories by length so the subdirectories
-        // will be found first if they match
-        resolve(dirs.sort((a, b) => b.length - a.length))
+    glob(query, {}, (error: Error, files: string[]) => {
+      if (error) {
+        reject(error)
+        return
       }
-    )
+
+      // get the directories from the files
+      const dirs: string[] = files.map(path => {
+        const comps = path.split('/')
+        return comps.slice(0, comps.length - 1).join('/')
+      })
+
+      // sort the directories by length so the subdirectories
+      // will be found first if they match
+      resolve(dirs.sort((a, b) => b.length - a.length))
+    })
   })
 }
 
@@ -88,12 +89,10 @@ async function run(): Promise<void> {
       .filter((c: any) => c.distinct)
       .map((c: any) => c.id)
     const files: File[] = await getFilesChanged(gh, commitIDs)
-    core.debug('Files: ' + JSON.stringify(files))
     console.log('Files: ' + JSON.stringify(files))
 
     // Get the services which exist in source (the directory paths)
     const services = await listServiceDirectories()
-    core.debug('Services: ' + JSON.stringify(services))
     console.log('Services: ' + JSON.stringify(services))
 
     // Group the files by service directory
@@ -107,7 +106,6 @@ async function run(): Promise<void> {
       },
       {}
     )
-    core.debug('filesByService: ' + JSON.stringify(filesByService))
     console.log('filesByService: ' + JSON.stringify(filesByService))
 
     // Determine the status of the service, if the designated ServiceIdentifier has
@@ -122,7 +120,6 @@ async function run(): Promise<void> {
       },
       {[Status_Added]: [], [Status_Modified]: [], [Status_Deleted]: []}
     )
-    core.debug('statuses: ' + JSON.stringify(statuses))
     console.log('statuses: ' + JSON.stringify(statuses))
 
     // Write the files to changes.json
