@@ -5664,7 +5664,7 @@ function run() {
             const data = JSON.stringify({
                 services: statuses,
                 commit_ids: commitIDs,
-                payload: github_1.context.payload,
+                payload: github_1.context.payload
             });
             fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8');
             // Output to GitHub action
