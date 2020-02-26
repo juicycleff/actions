@@ -5584,6 +5584,7 @@ function listServiceDirectories() {
 function getFilesChanged(gh, commitIDs) {
     return __awaiter(this, void 0, void 0, function* () {
         const repo = github_1.context.payload.repository;
+        console.log(JSON.stringify(github_1.context.payload));
         const org = repo.organization;
         const owner = org || repo.owner;
         const args = { owner: owner.name, repo: repo.name };
@@ -5609,7 +5610,7 @@ function run() {
             // Initialize a github client using the token provided by the action
             const token = core.getInput('githubToken');
             if (token === '')
-                return core.setFailed("Missing token");
+                return core.setFailed('Missing token');
             const gh = new github_1.GitHub(token);
             // Extract the commits from the action context
             const commitIDs = github_1.context.payload.commits
@@ -5633,10 +5634,8 @@ function run() {
                 return Object.assign(Object.assign({}, map), { [status]: [...map[status], srv] });
             }, { [Status_Added]: [], [Status_Modified]: [], [Status_Deleted]: [] });
             // Write the files to changes.json
-            fs.writeFileSync(`${process.env.HOME}/changes.json`, JSON.stringify({
-                services: statuses,
-                commit_ids: commitIDs
-            }), 'utf-8');
+            const data = JSON.stringify({ services: statuses, commit_ids: commitIDs });
+            fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8');
             // Output to GitHub action
             core.setOutput('services_added', statuses[Status_Added].join(' '));
             core.setOutput('services_modified', statuses[Status_Modified].join(' '));

@@ -53,6 +53,8 @@ async function getFilesChanged(
   commitIDs: string[]
 ): Promise<File[]> {
   const repo = context.payload.repository
+  console.log(JSON.stringify(context.payload))
+
   const org = repo!.organization
   const owner = org || repo!.owner
   const args = {owner: owner.name, repo: repo!.name}
@@ -120,14 +122,8 @@ async function run(): Promise<void> {
     )
 
     // Write the files to changes.json
-    fs.writeFileSync(
-      `${process.env.HOME}/changes.json`,
-      JSON.stringify({
-        services: statuses,
-        commit_ids: commitIDs
-      }),
-      'utf-8'
-    )
+    const data = JSON.stringify({services: statuses, commit_ids: commitIDs})
+    fs.writeFileSync(`${process.env.HOME}/changes.json`, data, 'utf-8')
 
     // Output to GitHub action
     core.setOutput('services_added', statuses[Status_Added].join(' '))
