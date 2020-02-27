@@ -5545,17 +5545,11 @@ let glob = __webpack_require__(120);
 // ServiceIdentifier is the file which is required in a directory in order
 // for it to be classified as a service
 const ServiceIdentifier = 'main.go';
-// The statuses a file / service can have
-// interface Status String {}
-// const Status_Added: Status = 'added';
-// const Status_Modified: Status = 'modified'
-// const Status_Deleted: Status = 'deleted'
-// const Status_Unknown: Status = 'unknown'
 // File is the object type returned by the GitHub API
 class File {
     constructor() {
         this.filename = ''; // e.g. foobar/main.go
-        this.status = 'unknown'; // e.g. added, modified, deleted
+        this.status = 'unknown'; // e.g. added, modified, removed
     }
 }
 // listServiceDirectories returns an array of all the directories which include
@@ -5629,7 +5623,7 @@ function run() {
             // Get the services which exist in source (the directory paths)
             let services = yield listServiceDirectories();
             console.log('Services: ' + JSON.stringify(services));
-            // Get the directories of any services which have been deleted (since
+            // Get the directories of any services which have been removed (since
             // they will no longer show up in the filesystem)
             files
                 .filter(f => f.filename.endsWith(ServiceIdentifier))
@@ -5637,7 +5631,7 @@ function run() {
                 const comps = f.filename.split('/');
                 services.push(comps.slice(0, comps.length - 1).join('/'));
             });
-            console.log('Services incl deleted: ' + JSON.stringify(services));
+            console.log('Services incl removed: ' + JSON.stringify(services));
             // Group the files by service directory
             const filesByService = files.reduce((map, file) => {
                 const srv = services.find(s => file.filename.startsWith(s));
@@ -5646,11 +5640,11 @@ function run() {
                 return Object.assign(Object.assign({}, map), { [srv]: map[srv] ? [...map[srv], file] : [file] });
             }, {});
             // Determine the status of the service, if the designated ServiceIdentifier has
-            // been modified, this is the primary way to know if a service has been created or deleted
+            // been modified, this is the primary way to know if a service has been created or removed
             let statuses = {
                 added: [],
                 modified: [],
-                deleted: []
+                removed: []
             };
             Object.keys(filesByService).forEach(srv => {
                 const files = filesByService[srv];
@@ -5670,7 +5664,7 @@ function run() {
             // Output to GitHub action
             core.setOutput('services_added', statuses['added'].join(' '));
             core.setOutput('services_modified', statuses['modified'].join(' '));
-            core.setOutput('services_deleted', statuses['deleted'].join(' '));
+            core.setOutput('services_removed', statuses['removed'].join(' '));
         }
         catch (error) {
             core.setFailed(error.message);
@@ -5684,7 +5678,7 @@ const testFiles = [
         filename: 'services/location/examples/web/demotwo.go',
         status: 'modified'
     },
-    { filename: 'services/platform-test/main.go', status: 'deleted' },
+    { filename: 'services/platform-test/main.go', status: 'removed' },
     { filename: 'services/location/demo.go', status: 'modified' },
     { filename: 'services/events/main.go', status: 'added' }
 ];

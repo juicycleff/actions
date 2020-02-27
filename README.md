@@ -44,10 +44,10 @@ jobs:
             echo Modified $dir
           done
 
-          echo Logging services deleted
-          services=(${{ steps.services_changed.outputs.services_deleted }})
+          echo Logging services removed
+          services=(${{ steps.services_changed.outputs.services_removed }})
           for dir in "${services[@]}"; do
-            echo Deleted $dir
+            echo Removed $dir
           done
 
           echo Done
