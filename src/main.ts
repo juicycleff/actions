@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as fs from 'fs'
 import * as core from '@actions/core'
 import {context, GitHub} from '@actions/github'
@@ -51,6 +52,9 @@ async function getFilesChanged(
   commitIDs: string[]
 ): Promise<File[]> {
   const {organization, name} = context.payload.repository!
+  console.log('context.payload', context.payload)
+  console.log('organization', organization)
+  console.log('name', name)
   const args = {owner: organization, repo: name}
 
   return new Promise(async (resolve, reject) => {
