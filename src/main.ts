@@ -19,7 +19,7 @@ class File {
 // the designated ServiceIdentifier file. Some services are nested within other
 // directories, these will be at the start of the array.
 async function listServiceDirectories(): Promise<string[]> {
-  let query = `${process.env.HOME}/services/**/${ServiceIdentifier}`
+  const query = `${process.env.HOME}/services/**/${ServiceIdentifier}`
   console.log(query)
   console.log(process.cwd())
 
@@ -31,7 +31,7 @@ async function listServiceDirectories(): Promise<string[]> {
       }
 
       // get the directories from the files
-      let dirs: string[] = files.map(path => {
+      const dirs: string[] = files.map(path => {
         const comps = path
           .substr(process.cwd().length + 1, path.length)
           .split('/')
@@ -51,11 +51,11 @@ async function getFilesChanged(
   gh: GitHub,
   commitIDs: string[]
 ): Promise<File[]> {
-  const {organization, name} = context.payload.repository!
-  console.log('context.payload', context.payload)
-  console.log('organization', organization)
-  console.log('name', name)
-  const args = {owner: organization, repo: name}
+  const {owner, name} = context.payload.repository!
+  const args = {
+    owner,
+    repo: name
+  }
 
   return new Promise(async (resolve, reject) => {
     try {
@@ -96,13 +96,14 @@ async function run(): Promise<void> {
       .map((c: any) => c.id)
     const files: File[] = await getFilesChanged(gh, commitIDs)
     console.log(
-      'Files: ' +
-        JSON.stringify(files.map(f => ({name: f.filename, status: f.status})))
+      `Files: ${JSON.stringify(
+        files.map(f => ({name: f.filename, status: f.status}))
+      )}`
     )
 
     // Get the services which exist in source (the directory paths)
-    let services = await listServiceDirectories()
-    console.log('Services: ' + JSON.stringify(services))
+    const services = await listServiceDirectories()
+    console.log(`Services: ${JSON.stringify(services)}`)
 
     // Get the directories of any services which have been removed (since
     // they will no longer show up in the filesystem)
@@ -112,7 +113,7 @@ async function run(): Promise<void> {
         const comps = f.filename.split('/')
         services.push(comps.slice(0, comps.length - 1).join('/'))
       })
-    console.log('Services incl removed: ' + JSON.stringify(services))
+    console.log(`Services incl removed: ${JSON.stringify(services)}`)
 
     // Group the files by service directory
     const filesByService: Record<string, File[]> = files.reduce(
@@ -128,7 +129,7 @@ async function run(): Promise<void> {
 
     // Determine the status of the service, if the designated ServiceIdentifier has
     // been modified, this is the primary way to know if a service has been created or removed
-    let statuses: Record<string, string[]> = {
+    const statuses: Record<string, string[]> = {
       added: [],
       modified: [],
       removed: []
@@ -137,10 +138,10 @@ async function run(): Promise<void> {
       const files = filesByService[srv]
       const mainFile = files.find(f => f.filename.endsWith(ServiceIdentifier))
       const status = mainFile ? mainFile.status : 'modified'
-      console.log(srv + ' has status ' + status)
+      console.log(`${srv} has status ${status}`)
       statuses[status].push(srv)
     })
-    console.log('statuses: ' + JSON.stringify(statuses))
+    console.log(`statuses: ${JSON.stringify(statuses)}`)
 
     // Write the files to changes.json
     const data = JSON.stringify({
