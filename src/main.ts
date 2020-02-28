@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import * as core from '@actions/core'
 import {context, GitHub} from '@actions/github'
-let glob = require('glob')
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const glob = require('glob')
 
 // ServiceIdentifier is the file which is required in a directory in order
 // for it to be classified as a service
