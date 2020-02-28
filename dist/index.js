@@ -5538,10 +5538,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable no-console */
 const fs = __importStar(__webpack_require__(747));
 const core = __importStar(__webpack_require__(470));
 const github_1 = __webpack_require__(469);
-let glob = __webpack_require__(120);
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const glob = __webpack_require__(120);
 // ServiceIdentifier is the file which is required in a directory in order
 // for it to be classified as a service
 const ServiceIdentifier = 'main.go';
@@ -5584,11 +5586,12 @@ function listServiceDirectories() {
 // all commits, leveraging the filesFromCommit function.
 function getFilesChanged(gh, commitIDs) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { organization, name } = github_1.context.payload.repository;
-        const args = { owner: organization, repo: name };
+        const { owner, name } = github_1.context.payload.repository;
+        const args = { owner: owner.name, repo: name };
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const responses = yield Promise.all(commitIDs.map((ref) => __awaiter(this, void 0, void 0, function* () {
+                    // ts-ignore
                     return gh.repos.getCommit(Object.assign(Object.assign({}, args), { ref }));
                 })));
                 resolve(responses.reduce((group, res) => {
