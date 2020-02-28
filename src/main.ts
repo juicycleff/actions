@@ -17,7 +17,7 @@ class File {
 // the designated ServiceIdentifier file. Some services are nested within other
 // directories, these will be at the start of the array.
 async function listServiceDirectories(): Promise<string[]> {
-  let query = `${process.env.HOME}/**/${ServiceIdentifier}`
+  let query = `${process.env.HOME}/services/**/${ServiceIdentifier}`
   console.log(query)
   console.log(process.cwd())
 
